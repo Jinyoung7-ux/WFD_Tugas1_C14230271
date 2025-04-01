@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Food;
+use Illuminate\Support\Facades\Session;
+
 
 class FoodController extends Controller
 {
@@ -23,7 +25,10 @@ class FoodController extends Controller
      */
     public function create()
     {
-        //
+        $mode = "ADD";
+        return view('form', [
+            "mode" => $mode
+        ]);
     }
 
     /**
@@ -31,7 +36,29 @@ class FoodController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|unique:foods|max:255',
+            'description' => 'required',
+            'image' => 'required'
+        ]);
+        if ($validated) {
+            $title = $request->title;
+            $description = $request->description;
+            $image = $request->file("image");
+            $path = null;
+            if ($image !== null) {
+                $path = $image->store('images', 'public');
+            }
+            Food::create([
+                "title" => $title,
+                "description" => $description,
+                "image_url" => $path
+            ]);
+            Session::flash('status', 'Food is added successfully!');
+            return redirect()->route('foods.index');    
+        } else {
+            return back()->withInput();
+        }
     }
 
     /**
@@ -51,7 +78,12 @@ class FoodController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $mode = "EDIT";
+        $food = Food::where('id', $id)->firstOrFail();
+        return view('form', [
+            'foods' => $food,
+           'mode' => $mode
+        ]);
     }
 
     /**
@@ -59,14 +91,29 @@ class FoodController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'required',
+        ]);
+        if ($validated) {
+            $title = $request->title;
+            $description = $request->description;
+            Food::where('id', $id)->update([
+                "title" => $title,
+                "description" => $description
+            ]);
+            Session::flash('status', 'Event is edited successfully!');
+            return redirect()->route('foods.index');
+        } else {
+            return back()->withInput();
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+
     public function destroy(string $id)
     {
-        //
+        Food::where('id', $id)->delete();
+        return redirect()->route('foods.index');
     }
 }
