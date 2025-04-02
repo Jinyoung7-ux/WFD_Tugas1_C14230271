@@ -14,7 +14,7 @@
                   @include('layouts.header')
             </div>
 
-            <div class="content flex flex-col items-center justify-center mt-5 ">
+            <div class="content flex flex-col items-center justify-center mt-5 sm:grid-cols-2 xl:grid-cols-3 gap-3 px-4 py-3">
                   @yield('content')
             </div>
         </div>

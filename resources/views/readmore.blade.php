@@ -2,26 +2,54 @@
 @extends('layouts.base')
 
 @section('content')
-<h1 class="mb-1 text-4xl font-bold tracking-tight text-white sm:text-5xl">{{ $food->title }}</h1>
-<small class="text-base text-gray-500">{{ $Carbon::parse($food->updated_at)->isoFormat('Do MMMM Y, h:mm:ss A') }}</small>
-@if($food->image_url !== null)
-<img class="mx-auto w-[35em] h-[22em] mt-3" src="{{ asset('storage/' . $food->image_url) }}" />
-@endif
-<p class="mt-6 text-base text-gray-300 max-w-[41em] text-justify break-words">{{ $food->description }}</p>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <header class="mb-6">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">
+            {{ $food->title }}
+        </h1>
+        <small class="text-gray-400 text-sm">
+            Last updated: {{ $Carbon::parse($food->updated_at)->isoFormat('Do MMMM Y, h:mm:ss A') }}
+        </small>
+    </header>
 
-<button>
-    <a href="{{ route('foods.index') }}" class="fixed bottom-5 left-5 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg">Back</a>
-</button>
+    <!-- Gambar Makanan -->
+    @if($food->image_url !== null)
+    <div class="mb-8 rounded-lg overflow-hidden shadow-lg">
+        <img class="w-full h-auto max-h-[28rem] object-cover" 
+             src="{{ asset('storage/' . $food->image_url) }}" 
+             alt="{{ $food->title }}" />
+    </div>
+    @endif
 
-<div class="mt-1 flex gap-3">
-    <a href="{{ route('foods.edit', ['food' => $food->id]) }}">
-        <button class="bg-blue-700 text-white px-5 py-1 rounded-full ">Edit</button>
+    <!-- Deskripsi -->
+    <div class="prose prose-invert max-w-none mb-10">
+        <p class="text-gray-300 leading-relaxed">
+            {{ $food->description }}
+        </p>
+    </div>
+
+    <!-- Tombol Action -->
+    <div class="flex flex-wrap items-center gap-4 mt-8">
+        <a href="{{ route('foods.edit', ['food' => $food->id]) }}" 
+           class="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors duration-200 text-sm font-medium">
+            Edit
+        </a>
+        
+        <form action="{{ route('foods.destroy', ['food' => $food->id]) }}" method="POST">
+            @csrf
+            @method("DELETE")
+            <button type="submit" 
+                    class="inline-flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200 text-sm font-medium">
+                Delete
+            </button>
+        </form>
+    </div>
+
+    <!-- Tombol Back -->
+    <a href="{{ route('foods.index') }}" 
+       class="fixed bottom-5 left-5 inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 text-sm font-medium">
+        Back to List
     </a>
-    <form action="{{ route('foods.destroy', ['food' => $food->id]) }}" method="POST" class="ml-1">
-        @csrf
-        @method("DELETE")
-        <button class="bg-red-700 px-5 text-white py-1 rounded-full">Delete</button>
-    </form>
 </div>
-
 @endsection
